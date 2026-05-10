@@ -1,25 +1,25 @@
 # rancher-cli-k8s
-Rancher v2 CLI with kubectl
 
-## Supported tags and respective Dockerfile links
-* `v2.4.11-k8s1.20.15`, `latest` (used by Rancher v2.5.10)
-* `v2.4.10-k8s1.18.19` ([v2.4.10-k8s1.18.19/Dockerfile](https://github.com/mheiniger/rancher-cli-k8s/blob/cliv2.4.10/Dockerfile))
-* `v2.4.10` ([v2.4.10/Dockerfile](https://github.com/mheiniger/rancher-cli-k8s/blob/cliv2.4.10/Dockerfile))
-* `v2.2.0` ([v2.2.0/Dockerfile](https://github.com/mheiniger/rancher-cli-k8s/blob/cliv2.2.0/Dockerfile))
-* `v2.0.2` ([v2.0.2/Dockerfile](https://github.com/mheiniger/rancher-cli-k8s/blob/v2.0.2/Dockerfile))
+Rancher v2 CLI with kubectl, packaged as a minimal Alpine image.
 
+[![Build](https://github.com/TheFlowByte/rancher-cli-k8s/actions/workflows/build.yml/badge.svg)](https://github.com/TheFlowByte/rancher-cli-k8s/actions/workflows/build.yml)
+[![Latest tag](https://ghcr-badge.egpl.dev/TheFlowByte/rancher-cli-k8s/latest_tag?trim=major&label=latest)](https://github.com/TheFlowByte/rancher-cli-k8s/pkgs/container/rancher-cli-k8s)
+[![Image size](https://ghcr-badge.egpl.dev/TheFlowByte/rancher-cli-k8s/size?label=size)](https://github.com/TheFlowByte/rancher-cli-k8s/pkgs/container/rancher-cli-k8s)
 
-## Examples:
+Hosted on GitHub Container Registry (`ghcr.io`).
 
-If you have done a `rancher login` on the host, you can map the `.rancher` folder into the container to share credentials.
+## Supported tags
 
-`docker run -rm -it -v ~/.rancher:/root/.rancher mheiniger/rancher-cli-k8s:latest rancher kubectl get nodes`
+| Tag | Rancher CLI | kubectl | Recommended Rancher Server |
+|-----|-------------|---------|---------------------------|
+| `v2.13.0-k8s1.28.7`, `latest` | v2.13.0 | v1.28.7 | 2.11+ |
+| `v2.8.4-k8s1.28.7` | v2.8.4 | v1.28.7 | 2.7-2.10 (safe default) |
+| `v2.4.11-k8s1.20.15` | v2.4.11 | v1.20.15 | 2.5.x (legacy) |
 
-Otherwise, you'll need to login using an API token from your rancher gui. In a build scenario You could create a new API key from your account in the rancher2 GUI and then expose it via environment variable and then:
+The image is rebuilt automatically on every push to `master` — see [`.github/workflows/build.yml`](.github/workflows/build.yml).
 
-```
-rancher login "$RANCHER_SERVER_URL" -t "$RANCHER_API_TOKEN"
-rancher kubectl get nodes
-...
-```
+To rebuild for a different combination, change `rancher/cli2:VERSION` and `KUBECTL_VERSION` in [`Dockerfile`](Dockerfile) and push.
 
+## Pull
+
+```bash
