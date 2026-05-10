@@ -1,4 +1,11 @@
-FROM lachlanevenson/k8s-kubectl:v1.28.7 AS k8scli
 FROM rancher/cli2:v2.13.0
-COPY --from=k8scli /usr/local/bin/kubectl /usr/local/bin
+
+ARG KUBECTL_VERSION=v1.28.7
+
+RUN apk add --no-cache curl ca-certificates && \
+    curl -L "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" \
+      -o /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl && \
+    kubectl version --client
+
 ENTRYPOINT []
