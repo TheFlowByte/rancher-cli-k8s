@@ -27,12 +27,26 @@ jobs:
       - name: Extract version tag from Dockerfile
         id: meta
         run: |
-          RANCHER=$(grep -oP 'rancher/cli2:\Kv[\d.]+' Dockerfile)
-          KUBECTL=$(grep -oP 'k8s-kubectl:\Kv[\d.]+' Dockerfile)
-          TAG="${RANCHER}-k8s${KUBECTL}"
-          REPO="${GITHUB_REPOSITORY,,}"   # lowercase — обязательно для ghcr
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "repo=$REPO" >> $GITHUB_OUTPUT
+          set -x
+          cat Dockerfile
+
+          # Match rancher/cli2:vX.Y.Z (with or without leading 'v')
+          RANCHER=$(grep -oP 'rancher/cli2:\K[v0-9.]+' Dockerfile || echo "unknown")
+          # Match KUBECTL_VERSION=vX.Y.Z (in ARG, ENV, or RUN)
+          KUBECTL=$(grep -oP 'KUBECTL_VERSION[ =]+\K[v0-9.]+' Dockerfile || echo "unknown")
+
+          if [ -z "$RANCHER" ] || [ "$RANCHER" = "unknown" ] || \
+             [ -z "$KUBECTL" ] || [ "$KUBECTL" = "unknown" ]; then
+            # Fallback to date+sha so we still push something
+            TAG="build-$(date +%Y%m%d)-${GITHUB_SHA:0:7}"
+            echo "::warning::Could not parse versions (rancher='$RANCHER', kubectl='$KUBECTL'), using fallback tag '$TAG'"
+          else
+            TAG="${RANCHER}-k8s${KUBECTL}"
+          fi
+
+          REPO="${GITHUB_REPOSITORY,,}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "repo=$REPO" >> "$GITHUB_OUTPUT"
           echo "Will push: ghcr.io/${REPO}:${TAG} and :latest"
 
       - uses: docker/build-push-action@v5
